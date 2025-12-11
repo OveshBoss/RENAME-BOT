@@ -1,6 +1,6 @@
 FROM python:3.10-slim
 
-# Set timezone only
+# Set timezone only (Render container time will follow host)
 ENV TZ=Asia/Kolkata
 RUN apt-get update && \
     apt-get install -y tzdata && \
@@ -15,4 +15,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 CMD ["python", "main.py"]
+
 
