@@ -18,17 +18,19 @@ MOVIE_GROUP = os.getenv("MOVIE_GROUP")
 START_IMAGE = os.getenv("START_IMAGE")
 
 # -----------------------------
-# Pyrogram client with in_memory=True to fix [16] BadMsgNotification
+# Pyrogram client
 # -----------------------------
 app = Client(
     "RenameBot",
     api_id=API_ID,
     api_hash=API_HASH,
     bot_token=BOT_TOKEN,
-    in_memory=True
+    in_memory=True   # Fixes BadMsgNotification
 )
 
+# -----------------------------
 # /start command
+# -----------------------------
 @app.on_message(filters.command("start") & filters.private)
 async def start(client, message):
     caption = f"""
@@ -112,7 +114,7 @@ async def progress(current, total, message, start):
 {bar}
 
 ╭━━━━❰ST BOTS PROCESSING...❱━➣
-┣⪼ 🗃️ ɢɪʙɪʟɪᴛʏ: {humanize.naturalsize(current)} | {humanize.naturalsize(total)}
+┣⪼ 🗃️ ᴛʏᴘᴇ: {humanize.naturalsize(current)} | {humanize.naturalsize(total)}
 ┣⪼ ⏳️ ᴅᴏɴᴇ: {round(percent,2)}%
 ┣⪼ 🚀 ꜱᴩᴇᴇᴅ: {humanize.naturalsize(speed)}/s
 ┣⪼ ⏰️ ᴇᴛᴀ: {round(eta)} sec
@@ -158,3 +160,4 @@ async def rename_handler(client, message):
 # Start bot
 # -----------------------------
 app.run()
+
