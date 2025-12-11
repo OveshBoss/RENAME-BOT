@@ -4,28 +4,21 @@ import humanize
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-# -----------------------------
-# SMALL CAPS FONT CONVERTER
-# -----------------------------
 def small(text):
     normal = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
     smallcaps = "ᴀʙᴄᴅᴇꜰɢʜɪᴊᴋʟᴍɴᴏᴘǫʀꜱᴛᴜᴠᴡxʏᴢ" + "ᴀʙᴄᴅᴇꜰɢʜɪᴊᴋʟᴍɴᴏᴘǫʀꜱᴛᴜᴠᴡxʏᴢ"
     return text.translate(str.maketrans(normal, smallcaps))
 
-# -----------------------------
-# ENV VARIABLES (RENDER)
-# -----------------------------
 API_ID = int(os.getenv("API_ID"))
 API_HASH = os.getenv("API_HASH")
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-
 OWNER_ID = os.getenv("OWNER_ID")
 CHANNEL_USERNAME = os.getenv("CHANNEL_USERNAME")
 MOVIE_GROUP = os.getenv("MOVIE_GROUP")
 START_IMAGE = os.getenv("START_IMAGE")
 
 # -----------------------------
-# PYROGRAM CLIENT (in_memory=True)
+# Pyrogram client with in_memory=True to fix [16] BadMsgNotification
 # -----------------------------
 app = Client(
     "RenameBot",
@@ -35,9 +28,7 @@ app = Client(
     in_memory=True
 )
 
-# -----------------------------
-# /START COMMAND
-# -----------------------------
+# /start command
 @app.on_message(filters.command("start") & filters.private)
 async def start(client, message):
     caption = f"""
@@ -56,14 +47,10 @@ async def start(client, message):
         [InlineKeyboardButton("👑 Owner", url=f"https://t.me/{OWNER_ID}")],
         [InlineKeyboardButton("🎬 Movie Group", url=f"https://t.me/{MOVIE_GROUP}")]
     ])
-    await message.reply_photo(
-        photo=START_IMAGE,
-        caption=caption,
-        reply_markup=buttons
-    )
+    await message.reply_photo(photo=START_IMAGE, caption=caption, reply_markup=buttons)
 
 # -----------------------------
-# MEDIA INFO HANDLER
+# Media info handler
 # -----------------------------
 @app.on_message(filters.private & (filters.document | filters.video))
 async def media_info(client, message):
@@ -94,7 +81,7 @@ async def media_info(client, message):
     await message.reply_text(info, reply_markup=buttons, quote=True)
 
 # -----------------------------
-# STORE DOC/VIDEO CHOICE
+# Store user choice
 # -----------------------------
 user_choice = {}
 
@@ -110,14 +97,13 @@ async def cb_handler(client, query):
         await query.message.reply(small("enter new filename with extension…"), quote=True)
 
 # -----------------------------
-# PROGRESS BAR FUNCTION
+# Progress bar
 # -----------------------------
 async def progress(current, total, message, start):
     now = time.time()
     speed = current / (now - start) if now - start > 0 else 0
     percent = current * 100 / total
     eta = (total - current) / speed if speed > 0 else 0
-
     bar = "▢" * int(percent / 5)
 
     text = f"""
@@ -138,7 +124,7 @@ async def progress(current, total, message, start):
         pass
 
 # -----------------------------
-# RENAME HANDLER
+# Rename handler
 # -----------------------------
 @app.on_message(filters.private & filters.reply)
 async def rename_handler(client, message):
@@ -151,7 +137,6 @@ async def rename_handler(client, message):
     processing = await message.reply(small("download started…"))
     start = time.time()
 
-    # Download
     downloaded = await client.download_media(
         message.reply_to_message,
         file_name=new_name,
@@ -161,7 +146,6 @@ async def rename_handler(client, message):
 
     file_type = user_choice.get(message.from_user.id, "document")
 
-    # Upload
     if file_type == "video":
         await message.reply_video(downloaded)
     else:
@@ -171,6 +155,6 @@ async def rename_handler(client, message):
     await processing.edit("✔ **DONE! FILE UPLOADED SUCCESSFULLY**")
 
 # -----------------------------
-# START BOT
+# Start bot
 # -----------------------------
 app.run()
